@@ -116,10 +116,24 @@ class MaskResult:
 # ---------------------------------------------------------------------------
 
 def _match_phase_name(candidate: str, aliases: tuple[str, ...]) -> bool:
-    """Case- and whitespace-insensitive match, tolerant of unicode oddities."""
-    c = candidate.strip().lower().replace(" ", "")
+    """Case- and whitespace-insensitive substring match, tolerant of unicode
+    oddities and orix's 'structure/mineral' doubled-name format.
+
+    Examples that all match aliases=('Austenite',):
+        'Austenite'              (exact)
+        'austenite / austenite'  (orix doubled format, spaces)
+        'austenite/austenite'    (orix doubled format, no spaces)
+        'γ-Austenite'            (unicode prefix)
+    """
+    def _normalize(s: str) -> str:
+        return s.strip().lower().replace(" ", "").replace("-", "").replace("_", "")
+
+    c = _normalize(candidate)
     for a in aliases:
-        if a.strip().lower().replace(" ", "") == c:
+        a_norm = _normalize(a)
+        # Substring match in either direction — the candidate might be a
+        # doubled/prefixed variant of the alias, or vice versa.
+        if a_norm in c or c in a_norm:
             return True
     return False
 
