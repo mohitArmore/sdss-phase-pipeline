@@ -26,6 +26,9 @@ import os
 import sys
 from pathlib import Path
 
+# Ensure the src package is importable — same trick used in scripts/preprocess_ang.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 
 def check_gpu() -> None:
     try:
