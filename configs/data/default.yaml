@@ -1,0 +1,45 @@
+# =============================================================================
+# Default data preprocessing config — small-data path
+# =============================================================================
+# All knobs for scripts/preprocess_ang.py live here.
+# When the dataset grows, copy this to configs/data/scaleup.yaml and only
+# change values, never touch src/.
+# =============================================================================
+
+# ---- Confidence-index filtering ----
+# 0.1 is the community-standard default (Wright et al., 2011). If your .ang files
+# come from a modern Hikari / Symmetry detector on well-polished samples, you can
+# often raise this to 0.15 or 0.2 for cleaner masks. Look at CI histograms in
+# notebooks/eda_ang.ipynb before tuning.
+masking:
+  ci_threshold: 0.1
+  iq_threshold: null           # don't filter on Image Quality by default
+  apply_median_filter: true
+  median_filter_size: 3        # tiny; larger dissolves fine grains
+  dilate_unindexed: true
+  unindexed_dilation_pixels: 1
+
+  # ---- Phase name aliases (case-insensitive, whitespace-tolerant) ----
+  # If your .ang file uses non-standard phase names, add them here.
+  ferrite_names:   ["Ferrite", "Iron bcc", "Iron (Alpha)", "Alpha-Iron",
+                    "δ-Ferrite", "delta-Ferrite", "Iron-BCC (Old)", "Iron (BCC)"]
+  austenite_names: ["Austenite", "Iron fcc", "Iron (Gamma)", "Gamma-Iron",
+                    "γ-Austenite", "Iron-FCC", "Iron (FCC)"]
+  sigma_names:     ["Sigma", "Sigma phase", "σ"]
+
+  # ---- Class ID convention ----
+  # Class 0 = austenite (background/majority-in-annealed)
+  # Class 1 = ferrite   (foreground/majority-in-as-built LPBF)
+  # This choice makes minority-class oversampling straightforward downstream.
+  ferrite_class_id: 1
+  austenite_class_id: 0
+  sigma_class_id: 2
+
+  # Start binary. Flip to true when you're ready to segment sigma in aged samples.
+  three_class_mode: false
+
+# ---- Registration ----
+registration:
+  method: "auto"               # auto | orb | ecc | manual
+  min_orb_inliers: 20
+  min_ecc_score: 0.5
