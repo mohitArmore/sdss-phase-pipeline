@@ -1,0 +1,24 @@
+# =============================================================================
+# Paper-figure dataset pipeline config — every tunable lives here.
+# Used by scripts/{ingest_paper,crop_panels,calibrate_scale,make_masks,
+# extract_features,validate,run_paper_pipeline}.py. The config hash is logged
+# by every script and stored in each record's extraction params.
+# =============================================================================
+seed: 42
+
+paths:                       # relative to data_root (except reports_dir/logs_dir)
+  data_root: data
+  papers: raw/papers
+  interim: interim
+  manifest: processed/manifests/manifest.json
+  features: processed/features/features.csv
+  reports_dir: reports/validation
+  logs_dir: reports/logs
+
+io:
+  allow_jpeg: true
+  never_reencode_jpeg: true  # enforced: originals are only read; derived files go through save_png
+  derived_format: png
+
+preview:
+  grid_px: 100               # grid spacing on --preview images
