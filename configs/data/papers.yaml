@@ -47,3 +47,7 @@ micrograph:
   local_block_px: 51         # 'local' method block size (odd)
   local_offset: 0.0
   kmeans_attempts: 5
+
+features:
+  min_region_px: 20          # phase regions smaller than this are not counted in grain stats
+  exclude_border: true       # drop regions touching the crop edge or an ignore area (truncated)
