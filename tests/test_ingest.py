@@ -62,7 +62,7 @@ def test_grid_preview_shape():
 
 
 def test_extract_pdf_lossless(tmp_path):
-    fitz = pytest.importorskip("fitz")
+    fitz = pytest.importorskip("pymupdf")
     jpg = tmp_path / "e.jpg"
     rng = np.random.default_rng(1)
     Image.fromarray((rng.random((40, 50, 3)) * 255).astype(np.uint8)).save(jpg, quality=70)

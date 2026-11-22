@@ -201,7 +201,7 @@ def extract_pdf_images(pdf_path: str | Path, out_dir: str | Path,
                          "height": h, "format": m.group(3), "file": f.name,
                          "sha256": sha256_file(f)})
     else:
-        import fitz  # PyMuPDF
+        import pymupdf as fitz
         doc = fitz.open(str(pdf_path))
         seen: set[int] = set()
         for pno in range(doc.page_count):
