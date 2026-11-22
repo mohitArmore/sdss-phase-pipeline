@@ -29,3 +29,11 @@ crop:
 
 scalebar:
   polarity: auto             # auto | dark | light — colour of the bar inside its bbox
+
+ebsd:
+  max_delta_e: 20            # CIELAB distance above which a pixel is 'unknown colour' -> 255
+  ambiguity_ratio: 0.8       # nearest/second-nearest distance above this -> 255 (anti-aliased edges)
+  mode_filter: 3             # majority-filter window (px); 0/1 disables
+  min_island_px: 4           # phase islands smaller than this -> 255
+  boundary_policy: ignore    # ignore | reassign
+  reassign_max_px: 3         # 'reassign': how far phases grow into unclassified pixels
