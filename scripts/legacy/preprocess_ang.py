@@ -38,7 +38,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.legacy.ang_to_mask import MaskingConfig, ang_to_mask, save_mask   # noqa: E402
 from src.data.manifest import (                                          # noqa: E402
     Material, Process, Quality, Sample, Source, add_or_update_sample,
-    PhaseFractions,
+    PhaseFractionsV1 as PhaseFractions,
 )
 from src.legacy.registration import register                               # noqa: E402
 from src.utils.config import config_hash, load_config                    # noqa: E402
