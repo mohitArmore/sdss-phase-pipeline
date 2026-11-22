@@ -260,7 +260,6 @@ def grid_preview(img: np.ndarray, grid_px: int = 100,
         if _box_ok(box):
             x0, y0, x1, y1 = box
             d.rectangle([x0 + pad, y0 + pad, x1 - 1 + pad, y1 - 1 + pad], outline=colour, width=2)
-    d.text((2, h + pad - 12), f"grid {grid_px}px, origin top-left, offset {pad}px", fill=(255, 0, 0))
     return np.asarray(canvas)
 
 

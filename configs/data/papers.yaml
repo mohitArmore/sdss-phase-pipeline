@@ -60,3 +60,12 @@ validation:
   boundary_band_px: [1, 2]   # sensitivity: exclude this many px around phase boundaries
   boundary_sensitive_pp: 2.0 # |delta ferrite| above this -> boundary_/threshold_sensitive flag
   sum_tolerance_pp: 2.0      # reported ferrite+austenite(+sigma) must sum to 100 within this
+
+overlay:                     # QC overlays in interim/overlays/
+  alpha: 0.45
+  colours: {austenite: "#2a78d6", ferrite: "#eb6834", sigma: "#1baf7a", ignore: "#808080"}
+
+resample:
+  # Recorded for later patch extraction; NOT applied to masks/features (resampling
+  # interpolates masks and biases fractions — features use native px x um/px).
+  target_um_per_px: {sem: 0.25, ebsd: 0.5, om: 0.75}
