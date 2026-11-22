@@ -37,3 +37,13 @@ ebsd:
   min_island_px: 4           # phase islands smaller than this -> 255
   boundary_policy: ignore    # ignore | reassign
   reassign_max_px: 3         # 'reassign': how far phases grow into unclassified pixels
+
+micrograph:
+  methods: [otsu, kmeans]    # first = primary; the rest are reported as method-spread sensitivity
+  flatfield_sigma_px: 50     # Gaussian background removed before thresholding (0 = off)
+  denoise_h: 7               # OpenCV NL-means strength (0 = off)
+  morph_radius_px: 1         # open+close disk radius
+  min_island_px: 256         # islands/holes smaller than this are absorbed by the surrounding phase
+  local_block_px: 51         # 'local' method block size (odd)
+  local_offset: 0.0
+  kmeans_attempts: 5
