@@ -2,13 +2,13 @@
 
 Usage
 -----
-    python scripts/preprocess_ang.py --config configs/data/default.yaml
+    python scripts/legacy/preprocess_ang.py --config configs/data/default.yaml
 
 What it does
 ------------
 1. Walks `data/raw/ang/` and finds every .ang file.
 2. For each .ang:
-   a. Runs the .ang → mask conversion (src.data.ang_to_mask).
+   a. Runs the .ang → mask conversion (src.legacy.ang_to_mask).
    b. Saves the mask as PNG under `data/interim/masks/`, with a JSON sidecar
       containing all preprocessing parameters and computed phase fractions.
    c. If a paired SEM image exists (same stem in data/raw/sem/), registers
@@ -33,14 +33,14 @@ import sys
 from pathlib import Path
 
 # Ensure the src package is importable when run as a script from repo root.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.data.ang_to_mask import MaskingConfig, ang_to_mask, save_mask   # noqa: E402
+from src.legacy.ang_to_mask import MaskingConfig, ang_to_mask, save_mask   # noqa: E402
 from src.data.manifest import (                                          # noqa: E402
     Material, Process, Quality, Sample, Source, add_or_update_sample,
     PhaseFractions,
 )
-from src.data.registration import register                               # noqa: E402
+from src.legacy.registration import register                               # noqa: E402
 from src.utils.config import config_hash, load_config                    # noqa: E402
 from src.utils.logging import get_logger                                 # noqa: E402
 from src.utils.seed import set_global_seed                               # noqa: E402
