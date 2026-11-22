@@ -1,8 +1,8 @@
-"""Tests for src.data.ang_to_mask that don't require a real .ang file."""
+"""Tests for src.legacy.ang_to_mask that don't require a real .ang file."""
 import numpy as np
 import pytest
 
-from src.data.ang_to_mask import IGNORE_INDEX, MaskingConfig, save_mask, MaskResult
+from src.legacy.ang_to_mask import IGNORE_INDEX, MaskingConfig, save_mask, MaskResult
 
 
 def test_masking_config_defaults():
@@ -45,7 +45,7 @@ def test_save_mask_roundtrip(tmp_path):
 
 
 def test_ang_to_mask_missing_file_raises(tmp_path):
-    from src.data.ang_to_mask import ang_to_mask, _ORIX_AVAILABLE
+    from src.legacy.ang_to_mask import ang_to_mask, _ORIX_AVAILABLE
     if not _ORIX_AVAILABLE:
         pytest.skip("orix not installed in this environment")
     with pytest.raises(FileNotFoundError):

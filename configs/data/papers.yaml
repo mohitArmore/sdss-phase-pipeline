@@ -1,0 +1,71 @@
+# =============================================================================
+# Paper-figure dataset pipeline config — every tunable lives here.
+# Used by scripts/{ingest_paper,crop_panels,calibrate_scale,make_masks,
+# extract_features,validate,run_paper_pipeline}.py. The config hash is logged
+# by every script and stored in each record's extraction params.
+# =============================================================================
+seed: 42
+
+paths:                       # relative to data_root (except reports_dir/logs_dir)
+  data_root: data
+  papers: raw/papers
+  interim: interim
+  manifest: processed/manifests/manifest.json
+  features: processed/features/features.csv
+  reports_dir: reports/validation
+  logs_dir: reports/logs
+
+io:
+  allow_jpeg: true
+  never_reencode_jpeg: true  # enforced: originals are only read; derived files go through save_png
+  derived_format: png
+
+preview:
+  grid_px: 100               # grid spacing on --preview images
+
+crop:
+  margin_px: 4               # inner margin shaved off every crop_box (panel frame lines)
+  min_side_px: 512           # crops smaller than this get qc flag small_crop (never upscaled)
+
+scalebar:
+  polarity: auto             # auto | dark | light — colour of the bar inside its bbox
+
+ebsd:
+  max_delta_e: 20            # CIELAB distance above which a pixel is 'unknown colour' -> 255
+  ambiguity_ratio: 0.8       # nearest/second-nearest distance above this -> 255 (anti-aliased edges)
+  mode_filter: 3             # majority-filter window (px); 0/1 disables
+  min_island_px: 4           # phase islands smaller than this -> 255
+  boundary_policy: ignore    # ignore | reassign
+  reassign_max_px: 3         # 'reassign': how far phases grow into unclassified pixels
+
+micrograph:
+  methods: [otsu, kmeans]    # first = primary; the rest are reported as method-spread sensitivity
+  flatfield_sigma_px: 50     # Gaussian background removed before thresholding (0 = off)
+  denoise_h: 7               # OpenCV NL-means strength (0 = off)
+  morph_radius_px: 1         # open+close disk radius
+  min_island_px: 256         # islands/holes smaller than this are absorbed by the surrounding phase
+  local_block_px: 51         # 'local' method block size (odd)
+  local_offset: 0.0
+  kmeans_attempts: 5
+
+features:
+  min_region_px: 20          # phase regions smaller than this are not counted in grain stats
+  exclude_border: true       # drop regions touching the crop edge or an ignore area (truncated)
+
+validation:
+  tol_pp: {ebsd_same_map: 5, ia: 8, xrd: 10, asbuilt_abs: 2}
+  group_by: paper_doi        # report table grouping (and the unit for grouped CV later)
+  asbuilt_conditions: [as_built]   # condition values that get the tighter asbuilt_abs tolerance
+  threshold_shift_rel: 0.10  # sensitivity: threshold (or max_delta_e) scaled by 1 +- this
+  boundary_band_px: [1, 2]   # sensitivity: exclude this many px around phase boundaries
+  boundary_sensitive_pp: 2.0 # |delta ferrite| above this -> boundary_/threshold_sensitive flag
+  sum_tolerance_pp: 2.0      # reported ferrite+austenite(+sigma) must sum to 100 within this
+
+overlay:                     # QC overlays in interim/overlays/
+  alpha: 0.45
+  colours: {austenite: "#2a78d6", ferrite: "#eb6834", sigma: "#1baf7a", ignore: "#808080"}
+
+resample:
+  # Recorded for later patch extraction; NOT applied to masks/features (resampling
+  # interpolates masks and biases fractions — features use native px x um/px).
+  target_um_per_px: {sem: 0.25, ebsd: 0.5, om: 0.75}

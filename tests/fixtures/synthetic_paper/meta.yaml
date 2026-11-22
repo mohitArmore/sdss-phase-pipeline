@@ -1,0 +1,59 @@
+# SYNTHETIC FIXTURE — not a real paper. Figures are rendered from this file by
+# src/data/synthetic.make_fixture_paper(): each panel's reported ferrite (or
+# 1 - austenite) is the exact ferrite fraction drawn over crop_box minus
+# ignore_boxes; scale bars are drawn 10 px in from each end of scale_bar.bbox.
+paper_id: synthetic_fixture
+doi: null
+citation: "Synthetic fixture rendered by src/data/synthetic.py (not a real paper)"
+licence: "n/a (synthetic test data)"
+material: "2507"
+process: LPBF
+figures:
+  - figure_id: "1"
+    file: figures/fig1.png
+    acquisition_route: publisher_figure
+    source_url: null
+    retrieved_on: null
+    panels:
+      - panel: a
+        crop_box: [20, 20, 620, 620]
+        ignore_boxes: [[470, 560, 620, 620]]
+        image_type: ebsd_phase
+        condition: as_built
+        build_plane: XY
+        ebsd_palette: {ferrite: "#ff0000", austenite: "#0000ff", ignore: ["#000000", "#ffffff"]}
+        scale_bar: {um: 50, bbox: [480, 570, 610, 610]}      # bar = 110 px
+        reported: {ferrite: 62.0, austenite: 38.0, unit: percent, method: EBSD,
+                   scope: this_panel, location_in_paper: "synthetic"}
+      - panel: b
+        crop_box: [660, 20, 1260, 620]
+        ignore_boxes: [[1110, 560, 1260, 620]]
+        image_type: om
+        condition: SA_1100C_1h
+        build_plane: XZ
+        etchant: synthetic
+        dark_phase: ferrite
+        scale_bar: {um: 100, px: 143}
+        reported: {ferrite: 45.0, austenite: 55.0, unit: percent, method: IA,
+                   scope: this_panel, location_in_paper: "synthetic"}
+  - figure_id: "2"
+    file: figures/fig2.jpg
+    acquisition_route: pdf_embedded
+    source_url: null
+    retrieved_on: null
+    panels:
+      - panel: a
+        crop_box: [10, 30, 610, 630]
+        image_type: sem
+        condition: SA_1100C_1h
+        dark_phase: austenite
+        scale_bar: {um: 20, bbox: [450, 580, 600, 620]}      # bar = 130 px
+        ignore_boxes: [[440, 570, 610, 630]]
+        reported: {austenite: 0.52, unit: fraction, method: IA, scope: this_panel,
+                   location_in_paper: "synthetic"}
+      - panel: b
+        crop_box: [630, 30, 1230, 630]
+        image_type: ebsd_phase
+        condition: SA_1100C_1h
+        ebsd_palette: {ferrite: "#ff0000", austenite: "#0000ff", ignore: ["#000000", "#ffffff"]}
+        reported: {ferrite: 30.0, method: EBSD, scope: this_panel, location_in_paper: "synthetic"}

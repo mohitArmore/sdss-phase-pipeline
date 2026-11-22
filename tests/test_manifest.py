@@ -5,7 +5,7 @@ import pytest
 
 from src.data.manifest import (
     Material, Process, Properties, Quality, Sample, Source,
-    PhaseFractions, add_or_update_sample, load_manifest, save_manifest,
+    PhaseFractionsV1 as PhaseFractions, add_or_update_sample, load_manifest, save_manifest,
 )
 
 
@@ -15,8 +15,9 @@ def test_sample_defaults_are_serializable(tmp_path: Path):
     loaded = load_manifest(tmp_path / "m.json")
     assert len(loaded) == 1
     assert loaded[0]["sample_id"] == "test_001"
-    assert loaded[0]["material"]["alloy"] == "SDSS_2507"
-    assert loaded[0]["modality"] == "sem"
+    # v1 Samples are stored in v2 shape (schema v2 migration).
+    assert loaded[0]["material"] == "SDSS_2507"
+    assert loaded[0]["image"]["image_type"] == "sem"
 
 
 def test_upsert_replaces_by_sample_id(tmp_path: Path):
@@ -27,7 +28,7 @@ def test_upsert_replaces_by_sample_id(tmp_path: Path):
     add_or_update_sample(p, s2)
     loaded = load_manifest(p)
     assert len(loaded) == 1
-    assert loaded[0]["modality"] == "optical"
+    assert loaded[0]["image"]["image_type"] == "om"
 
 
 def test_upsert_appends_new(tmp_path: Path):
@@ -46,8 +47,9 @@ def test_phase_fractions_round_trip(tmp_path: Path):
     )
     add_or_update_sample(p, s)
     loaded = load_manifest(p)
-    assert loaded[0]["phase_fractions_ebsd"]["ferrite"] == pytest.approx(0.94)
-    assert loaded[0]["phase_fractions_ebsd"]["austenite"] == pytest.approx(0.05)
+    assert loaded[0]["reported"]["ferrite"] == pytest.approx(0.94)
+    assert loaded[0]["reported"]["austenite"] == pytest.approx(0.05)
+    assert loaded[0]["legacy"]["unindexed"] == pytest.approx(0.01)
 
 
 def test_schema_version_mismatch_raises(tmp_path: Path):

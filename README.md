@@ -3,7 +3,15 @@
 Automated phase-fraction estimation and property prediction for LPBF-fabricated
 2507 super-duplex stainless steel.
 
-**Pipeline:** `.ang → phase mask → SEM segmentation → features → property prediction → uncertainty`
+**Pipeline:** `paper figure → crop → class mask → features → validation` (→ property prediction → uncertainty, later phases)
+
+The dataset is built from figures in published papers (EBSD phase maps, etched
+optical and SEM micrographs; PNG/JPG). Phase fractions (and region size / aspect
+ratio) are extracted by image analysis and validated against the fraction each
+paper reports. **Step-by-step manual workflow: [docs/PAPER_DATASET_GUIDE.md](docs/PAPER_DATASET_GUIDE.md).**
+
+The earlier `.ang → mask` path is kept, importable, under `src/legacy/` and
+`scripts/legacy/preprocess_ang.py`.
 
 ## Design principle
 
@@ -13,58 +21,55 @@ data arrives, no code is rewritten — only config values change (see `configs/`
 ## Directory layout
 
 ```
-sdss_phase_pipeline/
+sdss-phase-pipeline/
+├── configs/data/papers.yaml   # ALL tunables for the paper-figure pipeline
+├── templates/                 # paper_meta_template.yaml (human-filled registry entry)
 ├── data/
-│   ├── raw/                   # Immutable inputs, never modified
-│   │   ├── ang/               # Raw .ang files from EBSD
-│   │   ├── sem/               # Raw SEM micrographs (paired with .ang)
-│   │   └── optical/           # Raw optical micrographs
-│   ├── interim/               # Intermediate artifacts
-│   │   ├── masks/             # Binary phase masks derived from .ang
-│   │   └── registered/        # SEM aligned to EBSD frame
-│   ├── processed/             # Ready-to-train
-│   │   ├── patches/           # Cropped training patches (image + mask)
-│   │   └── manifests/         # JSON manifests linking everything
-│   └── external/              # Public datasets (MetalDAM, orix-data, etc.)
+│   ├── raw/papers/<paper_id>/ # meta.yaml (committed) + figures/ (never committed, never modified)
+│   ├── interim/               # ingest/, previews/, crops/, masks/, overlays/   (PNG only, not committed)
+│   ├── processed/
+│   │   ├── manifests/         # manifest.json, schema v2 (committed)
+│   │   └── features/          # features.csv (committed)
+│   └── LICENSES.md            # per-paper licence / redistribution table
 ├── src/
-│   ├── data/                  # Loaders, .ang parsing, mask generation, registration
-│   ├── models/                # Segmentation architectures (Phase 2)
-│   ├── training/              # Train loops, CV, callbacks (Phase 2)
-│   ├── evaluation/            # Metrics, visualization (Phase 2)
-│   ├── features/              # Feature extraction (Phase 4)
-│   ├── uncertainty/           # MC dropout, ensembles, conformal (Phase 3/4)
-│   └── utils/                 # Logging, config loading, seed control
-├── configs/                   # Hydra-style YAML configs, all knobs live here
-├── notebooks/                 # Exploratory work only, never source of truth
-├── reports/                   # Figures and tables for the paper
-├── scripts/                   # One-shot CLI entry points
-└── tests/                     # Unit tests for src/
+│   ├── io/image_io.py         # load_image (format, is_jpeg, JPEG quality), save_png, sha256_file
+│   ├── data/                  # manifest (v2), ingest_paper, crop, annotations, scalebar, synthetic
+│   ├── segment/               # ebsd_colour_to_mask, micrograph_segment
+│   ├── features/features.py   # phase fractions, region stats, boundary density
+│   ├── eval/validate.py       # errors vs reported, tolerances, sensitivity, QC flags, report
+│   ├── pipeline.py            # one function per stage, used by all scripts
+│   ├── legacy/                # .ang → mask, SEM↔EBSD registration (old path)
+│   └── utils/                 # config hash, logging, seed, CLI setup
+├── scripts/                   # ingest_paper, crop_panels, calibrate_scale, make_masks,
+│                              # extract_features, validate, run_paper_pipeline, legacy/
+├── reports/validation/        # summary.csv, summary.md, bland_altman.png
+├── docs/PAPER_DATASET_GUIDE.md
+└── tests/                     # synthetic-image tests + fixtures/synthetic_paper/meta.yaml
 ```
+
+Mask classes: `0 = austenite, 1 = ferrite, 2 = sigma (optional), 255 = ignore`.
 
 ## Reproducibility contract
 
-1. `data/raw/` is **never modified** by any script. All processing writes to `interim/` or `processed/`.
+1. `data/raw/` is **never modified** by any processing script; all processing writes to `interim/` or `processed/`. The only writers into `raw/` are acquisition helpers that *add* files: `ingest_paper.py --extract-pdf` (original embedded bytes) and `run_paper_pipeline.py --make-fixture`. Originals are SHA-256-hashed at ingest and re-checked on every ingest.
 2. Every experiment is driven by a YAML config in `configs/`. No hardcoded paths or hyperparameters in `src/`.
-3. `requirements.txt` pins versions. `python -m pip install -r requirements.txt` reproduces the environment on Colab or locally.
+3. `requirements.txt` gives lower bounds (`>=`). `python -m pip install -r requirements.txt` reproduces the environment on Colab or locally.
 4. Random seeds are set in `src/utils/seed.py` and threaded through every dataloader and model.
 5. Results are logged to `reports/` with the config hash so any figure can be traced back to the exact code + config that produced it.
 
 ## Quick start
 
 ```bash
-# 1. Clone
-git clone <your-repo-url> && cd sdss_phase_pipeline
-
-# 2. Install
 pip install -r requirements.txt
+pytest                                   # synthetic-image tests, no real data needed
 
-# 3. Drop .ang files into data/raw/ang/ and matching SEM images into data/raw/sem/
+# Try the whole pipeline on the synthetic fixture paper (scratch data root):
+python scripts/run_paper_pipeline.py --all --make-fixture --data-root /tmp/sdss_demo --reports-dir /tmp/sdss_demo/reports
 
-# 4. Preprocess (generate masks and manifest)
-python scripts/preprocess_ang.py --config configs/data/default.yaml
-
-# 5. Later phases:
-# python scripts/train.py --config configs/training/phase2_baseline.yaml
+# Real papers (see docs/PAPER_DATASET_GUIDE.md):
+python scripts/ingest_paper.py --paper-dir data/raw/papers/<paper_id> --preview
+python scripts/run_paper_pipeline.py --all --config configs/data/papers.yaml
 ```
 
-See `docs/` (to be added in Phase 6) for the full methodology.
+On Colab: `!python scripts/colab_bootstrap.py --data-root /content/drive/MyDrive/BTP/data`
+(installs requirements + poppler-utils, links Drive data). CPU runtime is enough.

@@ -1,0 +1,72 @@
+# =============================================================================
+# Paper registry entry — copy to data/raw/papers/<paper_id>/meta.yaml
+# =============================================================================
+# HUMAN-FILLED. Every fact here must be copied from the paper / publisher page.
+# Never guess: if you cannot find a value, write `null`. The pipeline warns
+# about nulls and flags the affected samples; it never fills them in.
+#
+# Coordinates are integer pixels in the ORIGINAL figure file, origin top-left,
+# boxes are [x0, y0, x1, y1] with x1/y1 EXCLUSIVE (numpy slicing convention).
+# Read them off the grid preview:
+#     python scripts/ingest_paper.py --paper-dir data/raw/papers/<paper_id> --preview
+#
+# Fields below marked (optional) may be omitted entirely.
+# Panel fields may also be put at figure level; a panel value overrides it.
+# =============================================================================
+
+paper_id: gargalis2023met          # {firstauthor}{year}{journal-abbrev}, lowercase, no spaces
+doi: null                          # e.g. "10.xxxx/yyyy" — copy exactly
+citation: null                     # full reference string, copy exactly
+licence: null                      # VERBATIM licence text/name, e.g. "CC BY 4.0"
+material: "2507"
+process: LPBF                      # LPBF | DED | wrought | cast | ...
+notes: null                        # (optional) free text
+
+figures:
+  - figure_id: "16"                # as numbered in the paper ("S3" for supplementary)
+    file: figures/fig16.png        # relative to this folder; PNG/JPG/JPEG, original bytes
+    acquisition_route: publisher_figure   # publisher_figure | pdf_embedded | pdf_render |
+                                          # supplementary | screenshot | author_supplied
+    source_url: null               # where the file was downloaded from
+    retrieved_on: null             # YYYY-MM-DD
+    panels:
+      - panel: a
+        crop_box: [0, 0, 100, 100]           # the image region only (no axes/labels outside)
+        ignore_boxes: []                     # [[x0,y0,x1,y1], ...] scale bar, labels, legend INSIDE the crop
+        image_type: om                       # ebsd_phase | ebsd_phase_iq | om | sem
+        condition: as_built                  # as_built | SA_1100C_1h | ... (paper's wording, snake_case)
+        build_plane: XY                      # XY | XZ | YZ | null
+
+        # --- micrographs (om / sem) ---
+        etchant: Beraha                      # null for unetched / SEM-BSE
+        dark_phase: ferrite                  # which phase appears DARK in this panel: ferrite | austenite
+        sigma_tone: null                     # (optional) dark | bright — only if sigma is visible and
+                                             #   you want 3-class multi-Otsu
+        ilastik_probabilities: null          # (optional) path to ilastik HDF5 probability export
+
+        # --- EBSD phase maps (ebsd_phase / ebsd_phase_iq) ---
+        # Colours from the figure legend; sample them from the preview if needed.
+        # Each phase may be one hex string or a list of shades.
+        ebsd_palette: {ferrite: "#ff0000", austenite: "#0000ff", ignore: ["#000000", "#ffffff"]}
+        ebsd_step_um: null                   # (optional) EBSD step size if stated
+
+        magnification: null                  # (optional) as stated, e.g. 500
+        # Scale bar: either measure it automatically from a tight bbox around the bar
+        # (in ORIGINAL figure pixels) ...
+        scale_bar: {um: 200, bbox: [0, 0, 10, 10]}
+        # ... or give the bar length you measured by hand:
+        # scale_bar: {um: 200, px: 143}
+
+        # Phase fractions AS REPORTED BY THE PAPER for this panel/sample.
+        # Values may be percent or fraction; set `unit` to be explicit.
+        reported:
+          ferrite: null
+          austenite: null
+          sigma: null
+          sd: null                            # (optional) standard deviation, same unit
+          unit: percent                       # percent | fraction
+          method: EBSD                        # EBSD | XRD | IA | Feritscope | this_work
+          scope: this_panel                   # this_panel (measured on THIS image) | sample_mean
+          location_in_paper: null             # e.g. "Table 3", "Section 3.4, text", "Fig. 16 caption"
+
+        properties: {}                        # (optional) e.g. {hardness_HV: 320, tensile_MPa: 1100}

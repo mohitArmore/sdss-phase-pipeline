@@ -7,7 +7,7 @@
 # =============================================================================
 
 # Core scientific stack — let pip resolve, all have wheels on Colab
-numpy>=1.24,<2.0
+numpy>=1.24              # no <2 cap: numpy 1.x has no wheels for Python 3.13
 scipy>=1.11
 pandas>=2.0
 
@@ -19,6 +19,8 @@ diffpy.structure>=3.2
 scikit-image>=0.22
 opencv-python-headless>=4.9
 Pillow>=10.0
+pymupdf>=1.24             # lossless PDF image extraction (pdfimages used instead if installed)
+# Optional, not required: h5py (ilastik probability import)
 
 # Deep learning — do NOT reinstall torch on Colab, it's already there and CUDA-matched.
 # We only add the training-time libraries that build on top of it.
