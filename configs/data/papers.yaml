@@ -22,3 +22,10 @@ io:
 
 preview:
   grid_px: 100               # grid spacing on --preview images
+
+crop:
+  margin_px: 4               # inner margin shaved off every crop_box (panel frame lines)
+  min_side_px: 512           # crops smaller than this get qc flag small_crop (never upscaled)
+
+scalebar:
+  polarity: auto             # auto | dark | light — colour of the bar inside its bbox

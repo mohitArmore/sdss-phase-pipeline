@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from src.legacy.ang_to_mask import IGNORE_INDEX  # one definition of 255 across the repo
+IGNORE = 255  # mask class convention: 0 austenite, 1 ferrite, 2 sigma, 255 ignore
 
 
 def to_crop_frame(boxes: list[list[int]] | None, eff_box: list[int]) -> list[list[int]]:
@@ -24,5 +24,5 @@ def ignore_mask(shape: tuple[int, ...], crop_boxes: list[list[int]]) -> np.ndarr
     """uint8 (H, W): 255 inside any box, 0 elsewhere."""
     m = np.zeros(shape[:2], dtype=np.uint8)
     for x0, y0, x1, y1 in crop_boxes:
-        m[y0:y1, x0:x1] = IGNORE_INDEX
+        m[y0:y1, x0:x1] = IGNORE
     return m
