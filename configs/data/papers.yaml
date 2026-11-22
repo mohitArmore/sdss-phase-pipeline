@@ -51,3 +51,12 @@ micrograph:
 features:
   min_region_px: 20          # phase regions smaller than this are not counted in grain stats
   exclude_border: true       # drop regions touching the crop edge or an ignore area (truncated)
+
+validation:
+  tol_pp: {ebsd_same_map: 5, ia: 8, xrd: 10, asbuilt_abs: 2}
+  group_by: paper_doi        # report table grouping (and the unit for grouped CV later)
+  asbuilt_conditions: [as_built]   # condition values that get the tighter asbuilt_abs tolerance
+  threshold_shift_rel: 0.10  # sensitivity: threshold (or max_delta_e) scaled by 1 +- this
+  boundary_band_px: [1, 2]   # sensitivity: exclude this many px around phase boundaries
+  boundary_sensitive_pp: 2.0 # |delta ferrite| above this -> boundary_/threshold_sensitive flag
+  sum_tolerance_pp: 2.0      # reported ferrite+austenite(+sigma) must sum to 100 within this
